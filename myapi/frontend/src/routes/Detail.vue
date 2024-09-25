@@ -1,10 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import fastapi from '../lib/api';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import Error from '../components/Error.vue';
 
 const route = useRoute();
+const router = useRouter();
 const question_id = route.params.question_id;
 const question = ref({});
 const get_question = async () => {
@@ -56,6 +57,18 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
+
+        <button
+            class="btn btn-secondary"
+            @click="
+                () => {
+                    router.push('/');
+                }
+            "
+        >
+            목록으로
+        </button>
+
         <!-- 답변 목록 -->
         <h5 class="border-bottom my-3 py-2" v-if="!!question.answers">
             {{ question.answers.length }}개의 답변이 있습니다.

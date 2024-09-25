@@ -1,9 +1,15 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import fastapi from '../lib/api';
+import { usePageStore } from '../store/page';
+import { storeToRefs } from 'pinia';
+
+const pageStore = usePageStore();
+const { getPage: page } = storeToRefs(pageStore);
+const { setPage } = pageStore;
+
 const question_list = ref([]);
 const size = 10;
-let page = 0;
 const total = ref(0);
 const totalPage = computed(() => Math.ceil(total.value / size));
 
@@ -14,13 +20,21 @@ const get_question_list = async (_page) => {
     };
     await fastapi('get', '/api/question/list', parmas, (json) => {
         question_list.value = json.question_list;
-        page = _page;
+        // setPage(_page);
         total.value = json.total;
     });
 };
 
+watch(
+    () => page.value,
+    (newVal, oldVal) => {
+        if (newVal !== oldVal) {
+            get_question_list(newVal);
+        }
+    }
+);
 onMounted(async () => {
-    await get_question_list(0);
+    await get_question_list(page.value);
 });
 </script>
 
@@ -56,7 +70,7 @@ onMounted(async () => {
                     class="page-link"
                     @click="
                         () => {
-                            get_question_list(page - 1);
+                            setPage(page - 1);
                         }
                     "
                 >
@@ -69,10 +83,7 @@ onMounted(async () => {
                     :class="{ active: index === page }"
                     v-if="index >= page - 5 && index <= page + 5"
                 >
-                    <button
-                        @click="() => get_question_list(index)"
-                        class="page-link"
-                    >
+                    <button @click="() => setPage(index)" class="page-link">
                         {{ index + 1 }}
                     </button>
                 </li>
@@ -82,7 +93,7 @@ onMounted(async () => {
                     class="page-link"
                     @click="
                         () => {
-                            get_question_list(page + 1);
+                            setPage(page + 1);
                         }
                     "
                 >

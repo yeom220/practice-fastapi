@@ -1,9 +1,18 @@
-<script setup></script>
+<script setup>
+import { usePageStore } from '../store/page';
+
+const pageStore = usePageStore();
+</script>
 
 <template>
     <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
         <div class="container-fluid">
-            <router-link class="navbar-brand" to="/">Pybo</router-link>
+            <router-link
+                class="navbar-brand"
+                to="/"
+                @click="pageStore.setPage(0)"
+                >Pybo</router-link
+            >
             <button
                 class="navbar-toggler"
                 type="button"
