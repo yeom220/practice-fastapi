@@ -27,7 +27,6 @@ const fastapi = async (
 
     const response = await fetch(_url, options);
     try {
-        const json = await response.json();
         if (response.status === 204) {
             // No content
             if (success_callback) {
@@ -36,6 +35,7 @@ const fastapi = async (
             return;
         }
 
+        const json = await response.json();
         if (response.status >= 200 && response.status < 300) {
             // 200 ~ 299
             if (success_callback) {

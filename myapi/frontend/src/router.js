@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import Home from './routes/Home.vue';
 import Detail from './routes/Detail.vue';
+import QuestionCreate from './routes/QuestionCreate.vue';
 
 const routes = [
     {
@@ -12,6 +13,10 @@ const routes = [
         path: '/detail/:question_id',
         name: 'detail',
         component: Detail
+    },
+    {
+        path: '/question-create',
+        component: QuestionCreate
     }
 ];
 const router = createRouter({

@@ -15,11 +15,35 @@ onMounted(async () => {
 </script>
 
 <template>
-    <li v-for="q in question_list">
-        <router-link :to="{ name: 'detail', params: { question_id: q.id } }">{{
-            q.subject
-        }}</router-link>
-    </li>
+    <div class="container my-3">
+        <table class="table">
+            <thead>
+                <tr class="table-dark">
+                    <th>번호</th>
+                    <th>제목</th>
+                    <th>작성일시</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(q, index) in question_list" :key="q.id">
+                    <td>{{ index + 1 }}</td>
+                    <td>
+                        <router-link
+                            :to="{
+                                name: 'detail',
+                                params: { question_id: q.id }
+                            }"
+                            >{{ q.subject }}</router-link
+                        >
+                    </td>
+                    <td>{{ q.create_date }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <router-link to="/question-create" class="btn btn-primary"
+            >질문 등록하기</router-link
+        >
+    </div>
 </template>
 
 <style scoped></style>
