@@ -36,6 +36,16 @@ const pageStore = usePageStore();
                             >로그인</router-link
                         >
                     </li>
+                    <li class="nav-item">
+                        <router-link class="nav-link" to="/test-w2ui"
+                            >w2ui 테스트</router-link
+                        >
+                    </li>
+                    <li class="nav-item">
+                        <router-link class="nav-link" to="/test-tabulator"
+                            >tabulator 테스트</router-link
+                        >
+                    </li>
                 </ul>
             </div>
         </div>

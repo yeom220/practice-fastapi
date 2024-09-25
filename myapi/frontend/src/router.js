@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from './routes/Home.vue';
 import Detail from './routes/Detail.vue';
 import QuestionCreate from './routes/QuestionCreate.vue';
+import W2uiTest from './routes/W2uiTest.vue';
+import TabulatorTest from './routes/TabulatorTest.vue';
 
 const routes = [
     {
@@ -17,6 +19,14 @@ const routes = [
     {
         path: '/question-create',
         component: QuestionCreate
+    },
+    {
+        path: '/test-w2ui',
+        component: W2uiTest
+    },
+    {
+        path: '/test-tabulator',
+        component: TabulatorTest
     }
 ];
 const router = createRouter({
