@@ -1,7 +1,10 @@
-<script setup></script>
+<script setup>
+import Navigation from './components/Navigation.vue';
+</script>
 
 <template>
-    <router-view></router-view>
+    <Navigation />
+    <router-view />
 </template>
 
 <style scoped></style>
