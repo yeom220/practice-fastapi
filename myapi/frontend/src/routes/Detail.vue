@@ -3,6 +3,8 @@ import { onMounted, ref } from 'vue';
 import fastapi from '../lib/api';
 import { useRoute, useRouter } from 'vue-router';
 import Error from '../components/Error.vue';
+import moment from 'moment/min/moment-with-locales';
+moment.locale('ko');
 
 const route = useRoute();
 const router = useRouter();
@@ -52,7 +54,11 @@ onMounted(async () => {
                 </div>
                 <div class="d-flex justify-content-end">
                     <div class="badge bg-light text-dark p-2">
-                        {{ question.create_date }}
+                        {{
+                            moment(question.create_date).format(
+                                'YYYY년 MM월 DD일 a hh:mm'
+                            )
+                        }}
                     </div>
                 </div>
             </div>
@@ -80,7 +86,11 @@ onMounted(async () => {
                 </div>
                 <div class="d-flex justify-content-end">
                     <div class="badge bg-light text-dark p-2">
-                        {{ a.create_date }}
+                        {{
+                            moment(a.create_date).format(
+                                'YYYY년 MM월 DD일 a hh:mm'
+                            )
+                        }}
                     </div>
                 </div>
             </div>

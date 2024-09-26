@@ -23,7 +23,7 @@ const post_question = async () => {
             router.push('/');
         },
         (json_error) => {
-            error = json_error;
+            error.value = json_error;
         }
     );
 };

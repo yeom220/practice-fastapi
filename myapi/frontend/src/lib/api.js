@@ -1,3 +1,5 @@
+import qs from 'qs';
+
 const fastapi = async (
     operation,
     url,
@@ -8,6 +10,12 @@ const fastapi = async (
     let method = operation;
     let content_type = 'application/json';
     let body = JSON.stringify(params);
+
+    if (operation === 'login') {
+        method = 'post';
+        content_type = 'application/x-www-form-urlencoded';
+        body = qs.stringify(params);
+    }
 
     let _url = import.meta.env.VITE_SERVER_URL + url;
     if (method === 'get') {

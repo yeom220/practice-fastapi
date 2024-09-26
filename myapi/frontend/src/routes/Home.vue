@@ -3,6 +3,8 @@ import { ref, onMounted, computed, watch } from 'vue';
 import fastapi from '../lib/api';
 import { usePageStore } from '../store/page';
 import { storeToRefs } from 'pinia';
+import moment from 'moment/min/moment-with-locales';
+moment.locale('ko');
 
 const pageStore = usePageStore();
 const { getPage: page } = storeToRefs(pageStore);
@@ -50,7 +52,7 @@ onMounted(async () => {
             </thead>
             <tbody>
                 <tr v-for="(q, index) in question_list" :key="q.id">
-                    <td>{{ index + 1 }}</td>
+                    <td>{{ total - page * size - index }}</td>
                     <td>
                         <router-link
                             :to="{
@@ -59,8 +61,19 @@ onMounted(async () => {
                             }"
                             >{{ q.subject }}</router-link
                         >
+                        <span
+                            class="text-danger small mx-2"
+                            v-if="q.answers.length > 0"
+                            >{{ q.answers.length }}</span
+                        >
                     </td>
-                    <td>{{ q.create_date }}</td>
+                    <td>
+                        {{
+                            moment(q.create_date).format(
+                                'YYYY년 MM월 DD일 a hh:mm'
+                            )
+                        }}
+                    </td>
                 </tr>
             </tbody>
         </table>

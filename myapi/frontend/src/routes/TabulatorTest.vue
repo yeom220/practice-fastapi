@@ -1,7 +1,7 @@
 <script setup>
 import data from '../assets/question.json';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
-import { Tabulator } from 'tabulator-tables';
+import { TabulatorFull as Tabulator } from 'tabulator-tables';
 
 const renderTime = ref(0);
 
@@ -13,7 +13,6 @@ let table;
 onMounted(async () => {
     table = new Tabulator('#main', {
         layout: 'fitColumns',
-        headerSortElement: "<i class='fas fa-arrow-up'></i>",
         // autoColumns: true,
         columns: [
             { field: 'id', title: 'ID' },

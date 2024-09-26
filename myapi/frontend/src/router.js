@@ -3,8 +3,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from './routes/Home.vue';
 import Detail from './routes/Detail.vue';
 import QuestionCreate from './routes/QuestionCreate.vue';
+import UserCreate from './routes/UserCreate.vue';
 import W2uiTest from './routes/W2uiTest.vue';
 import TabulatorTest from './routes/TabulatorTest.vue';
+import UserLogin from './routes/UserLogin.vue';
 
 const routes = [
     {
@@ -19,6 +21,14 @@ const routes = [
     {
         path: '/question-create',
         component: QuestionCreate
+    },
+    {
+        path: '/user-create',
+        component: UserCreate
+    },
+    {
+        path: '/user-login',
+        component: UserLogin
     },
     {
         path: '/test-w2ui',

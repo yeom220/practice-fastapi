@@ -8,6 +8,7 @@ import 'bootstrap/dist/js/bootstrap.min.js';
 import App from './App.vue';
 import router from './router';
 import { usePageStore } from './store/page';
+import { useUserStore } from './store/user';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -16,5 +17,7 @@ app.use(router).use(pinia);
 
 const pageStore = usePageStore();
 pageStore.loadState();
+const userStore = useUserStore();
+userStore.loadState();
 
 app.mount('#app');
