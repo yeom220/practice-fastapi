@@ -1,4 +1,11 @@
 import qs from 'qs';
+// import { useUserStore } from '../store/user';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+// const userStore = useUserStore();
+// const { get_access_token, set_access_token, set_is_login, set_username } =
+//     userStore;
 
 const fastapi = async (
     operation,
@@ -29,6 +36,12 @@ const fastapi = async (
         }
     };
 
+    // const _access_token = get_access_token;
+    // console.debug('_access_token', _access_token);
+    // if (_access_token) {
+    //     options.headers['Authorization'] = 'Bearer ' + _access_token;
+    // }
+
     if (method !== 'get') {
         options['body'] = body;
     }
@@ -49,6 +62,15 @@ const fastapi = async (
             if (success_callback) {
                 success_callback(json);
             }
+            return;
+        }
+
+        if (operation !== 'login' && response.status === 401) {
+            set_access_token('');
+            set_username('');
+            set_is_login(false);
+            alert('로그인이 필요합니다.');
+            router.push('/');
             return;
         }
 
