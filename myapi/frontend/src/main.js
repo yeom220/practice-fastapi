@@ -13,7 +13,8 @@ import { useUserStore } from './store/user';
 const app = createApp(App);
 const pinia = createPinia();
 // pinia.use(piniaPluginPersistedstate);
-app.use(router).use(pinia);
+app.use(pinia);
+app.use(router);
 
 const pageStore = usePageStore();
 pageStore.loadState();

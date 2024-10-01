@@ -1,11 +1,6 @@
 import qs from 'qs';
-// import { useUserStore } from '../store/user';
+import { useUserStore } from '../store/user';
 import { useRouter } from 'vue-router';
-
-const router = useRouter();
-// const userStore = useUserStore();
-// const { get_access_token, set_access_token, set_is_login, set_username } =
-//     userStore;
 
 const fastapi = async (
     operation,
@@ -17,6 +12,11 @@ const fastapi = async (
     let method = operation;
     let content_type = 'application/json';
     let body = JSON.stringify(params);
+
+    const router = useRouter();
+    const userStore = useUserStore();
+    const { get_access_token, set_access_token, set_is_login, set_username } =
+        userStore;
 
     if (operation === 'login') {
         method = 'post';
@@ -36,11 +36,10 @@ const fastapi = async (
         }
     };
 
-    // const _access_token = get_access_token;
-    // console.debug('_access_token', _access_token);
-    // if (_access_token) {
-    //     options.headers['Authorization'] = 'Bearer ' + _access_token;
-    // }
+    const _access_token = get_access_token;
+    if (_access_token) {
+        options.headers['Authorization'] = 'Bearer ' + _access_token;
+    }
 
     if (method !== 'get') {
         options['body'] = body;

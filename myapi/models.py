@@ -18,6 +18,7 @@ class Question(Base):
                            lazy="selectin")
     user_id = Column(Integer, ForeignKey("user.id"), nullable=True)
     user = relationship("User", backref="question_users")
+    modify_date = Column(DateTime, nullable=True)
 
 
 class Answer(Base):
@@ -34,6 +35,7 @@ class Answer(Base):
                             lazy="selectin")
     user_id = Column(Integer, ForeignKey("user.id"), nullable=True)
     user = relationship("User", backref="answer_users")
+    modify_date = Column(DateTime, nullable=True)
 
 
 class User(Base):

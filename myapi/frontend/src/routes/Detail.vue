@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import fastapi from '../lib/api';
-import { useRoute, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 import Error from '../components/Error.vue';
 import moment from 'moment/min/moment-with-locales';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '../store/user';
 moment.locale('ko');
 
 const route = useRoute();
@@ -15,6 +17,10 @@ const get_question = async () => {
         question.value = json;
     });
 };
+
+const { get_is_login: is_login, get_username: username } = storeToRefs(
+    useUserStore()
+);
 
 let content = '';
 const error = ref({ detail: [] });
@@ -38,6 +44,46 @@ const post_answer = async () => {
     );
 };
 
+const delete_question = (_question_id) => {
+    if (window.confirm('정말로 삭제하시겠습니까?')) {
+        const url = '/api/question/delete';
+        const params = {
+            question_id: _question_id
+        };
+        fastapi(
+            'delete',
+            url,
+            params,
+            (json) => {
+                router.push('/');
+            },
+            (err_json) => {
+                error = err_json;
+            }
+        );
+    }
+};
+
+const delete_answer = (answer_id) => {
+    if (window.confirm('정말로 삭제하시겠습니까?')) {
+        const url = '/api/answer/delete';
+        const params = {
+            answer_id: answer_id
+        };
+        fastapi(
+            'delete',
+            url,
+            params,
+            (json) => {
+                get_question();
+            },
+            (err_json) => {
+                error = err_json;
+            }
+        );
+    }
+};
+
 onMounted(async () => {
     await get_question();
 });
@@ -53,13 +99,54 @@ onMounted(async () => {
                     {{ question.content }}
                 </div>
                 <div class="d-flex justify-content-end">
-                    <div class="badge bg-light text-dark p-2">
-                        {{
-                            moment(question.create_date).format(
-                                'YYYY년 MM월 DD일 a hh:mm'
-                            )
-                        }}
+                    <div
+                        class="badge bg-light text-dark p-2 text-start mx-3"
+                        v-if="question.modify_date"
+                    >
+                        <div class="mb-2">modified at</div>
+                        <div>
+                            {{
+                                moment(question.modify_date).format(
+                                    'YYYY년 MM월 DD일 a hh:mm'
+                                )
+                            }}
+                        </div>
                     </div>
+                    <div class="badge bg-light text-dark p-2 text-start">
+                        <div>
+                            {{ question.user ? question.user.username : '' }}
+                        </div>
+                        <div>
+                            {{
+                                moment(question.create_date).format(
+                                    'YYYY년 MM월 DD일 a hh:mm'
+                                )
+                            }}
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="my-3"
+                    v-if="question.user && question.user.username === username"
+                >
+                    <router-link
+                        :to="{
+                            name: 'question-modify',
+                            params: { question_id: question.id }
+                        }"
+                        class="btn btn-sm btn-outline-secondary"
+                        >수정</router-link
+                    >
+                    <button
+                        class="btn btn-sm btn-outline-secondary"
+                        @click.prevent="
+                            () => {
+                                delete_question(question.id);
+                            }
+                        "
+                    >
+                        삭제
+                    </button>
                 </div>
             </div>
         </div>
@@ -85,13 +172,51 @@ onMounted(async () => {
                     {{ a.content }}
                 </div>
                 <div class="d-flex justify-content-end">
-                    <div class="badge bg-light text-dark p-2">
-                        {{
-                            moment(a.create_date).format(
-                                'YYYY년 MM월 DD일 a hh:mm'
-                            )
-                        }}
+                    <div
+                        class="badge bg-light text-dark p-2 text-start mx-3"
+                        v-if="a.modify_date"
+                    >
+                        <div class="mb-2">modified at</div>
+                        <div>
+                            {{
+                                moment(a.modify_date).format(
+                                    'YYYY년 MM월 DD일 a hh:mm'
+                                )
+                            }}
+                        </div>
                     </div>
+                    <div class="badge bg-light text-dark p-2 text-start">
+                        <div class="mb-2">
+                            {{ a.user ? a.user.username : '' }}
+                        </div>
+                        <div>
+                            {{
+                                moment(a.create_date).format(
+                                    'YYYY년 MM월 DD일 a hh:mm'
+                                )
+                            }}
+                        </div>
+                    </div>
+                </div>
+                <div class="my-3" v-if="a.user && username === a.user.username">
+                    <RouterLink
+                        class="btn btn-sm btn-outline-secondary"
+                        :to="{
+                            name: 'answer-modify',
+                            params: { answer_id: a.id }
+                        }"
+                        >수정</RouterLink
+                    >
+                    <button
+                        class="btn btn-sm btn-outline-secondary"
+                        @click.prevent="
+                            () => {
+                                delete_answer(a.id);
+                            }
+                        "
+                    >
+                        삭제
+                    </button>
                 </div>
             </div>
         </div>
@@ -99,12 +224,18 @@ onMounted(async () => {
         <Error :error="error" />
         <form method="post" class="my-3">
             <div class="mb-3">
-                <textarea rows="10" v-model="content" class="form-control" />
+                <textarea
+                    rows="10"
+                    v-model="content"
+                    class="form-control"
+                    :disabled="!is_login"
+                />
             </div>
             <input
                 type="submit"
                 value="답변등록"
                 class="btn btn-primary"
+                :class="{ disabled: !is_login }"
                 @click.prevent="post_answer"
             />
         </form>

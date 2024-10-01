@@ -7,6 +7,8 @@ import UserCreate from './routes/UserCreate.vue';
 import W2uiTest from './routes/W2uiTest.vue';
 import TabulatorTest from './routes/TabulatorTest.vue';
 import UserLogin from './routes/UserLogin.vue';
+import QuestionModify from './routes/QuestionModify.vue';
+import AnswerModify from './routes/AnswerModify.vue';
 
 const routes = [
     {
@@ -21,6 +23,16 @@ const routes = [
     {
         path: '/question-create',
         component: QuestionCreate
+    },
+    {
+        path: '/question-modify/:question_id',
+        name: 'question-modify',
+        component: QuestionModify
+    },
+    {
+        path: '/answer-modify/:answer_id',
+        name: 'answer-modify',
+        component: AnswerModify
     },
     {
         path: '/user-create',

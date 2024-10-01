@@ -1,0 +1,14 @@
+.idea
+myapi.db
+*.pyc
+__pycache__
+migrations
+alembic.ini
+
+node_modules
+dist
+dist-ssr
+*.local
+package-lock.json
+
+question.json

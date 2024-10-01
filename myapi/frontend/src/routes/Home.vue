@@ -4,11 +4,14 @@ import fastapi from '../lib/api';
 import { usePageStore } from '../store/page';
 import { storeToRefs } from 'pinia';
 import moment from 'moment/min/moment-with-locales';
+import { useUserStore } from '../store/user';
 moment.locale('ko');
 
 const pageStore = usePageStore();
 const { getPage: page } = storeToRefs(pageStore);
 const { setPage } = pageStore;
+
+const { get_is_login: is_login } = storeToRefs(useUserStore());
 
 const question_list = ref([]);
 const size = 10;
@@ -44,16 +47,21 @@ onMounted(async () => {
     <div class="container my-3">
         <table class="table">
             <thead>
-                <tr class="table-dark">
+                <tr class="text-center table-dark">
                     <th>번호</th>
-                    <th>제목</th>
+                    <th style="width: 50%">제목</th>
+                    <th>글쓴이</th>
                     <th>작성일시</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(q, index) in question_list" :key="q.id">
+                <tr
+                    class="text-center"
+                    v-for="(q, index) in question_list"
+                    :key="q.id"
+                >
                     <td>{{ total - page * size - index }}</td>
-                    <td>
+                    <td class="text-start">
                         <router-link
                             :to="{
                                 name: 'detail',
@@ -67,6 +75,7 @@ onMounted(async () => {
                             >{{ q.answers.length }}</span
                         >
                     </td>
+                    <td>{{ q.user ? q.user.username : '' }}</td>
                     <td>
                         {{
                             moment(q.create_date).format(
@@ -114,7 +123,10 @@ onMounted(async () => {
                 </button>
             </li>
         </ul>
-        <router-link to="/question-create" class="btn btn-primary"
+        <router-link
+            to="/question-create"
+            class="btn btn-primary"
+            :class="{ disabled: !is_login }"
             >질문 등록하기</router-link
         >
     </div>
