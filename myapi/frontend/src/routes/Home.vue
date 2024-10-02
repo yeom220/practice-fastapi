@@ -1,50 +1,77 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import fastapi from '../lib/api';
-import { usePageStore } from '../store/page';
+import { useSearchStore } from '../store/search';
 import { storeToRefs } from 'pinia';
 import moment from 'moment/min/moment-with-locales';
 import { useUserStore } from '../store/user';
 moment.locale('ko');
 
-const pageStore = usePageStore();
-const { getPage: page } = storeToRefs(pageStore);
-const { setPage } = pageStore;
+const searchStore = useSearchStore();
+const { getPage: page, getKeyword } = storeToRefs(searchStore);
+const { setPage, setKeyword } = searchStore;
 
 const { get_is_login: is_login } = storeToRefs(useUserStore());
 
 const question_list = ref([]);
 const size = 10;
 const total = ref(0);
+const kw = ref('');
 const totalPage = computed(() => Math.ceil(total.value / size));
 
-const get_question_list = async (_page) => {
+const get_question_list = async () => {
     const parmas = {
-        page: _page,
-        size: size
+        page: page.value,
+        size: size,
+        keyword: getKeyword.value
     };
     await fastapi('get', '/api/question/list', parmas, (json) => {
         question_list.value = json.question_list;
-        // setPage(_page);
         total.value = json.total;
     });
 };
 
-watch(
-    () => page.value,
-    (newVal, oldVal) => {
-        if (newVal !== oldVal) {
-            get_question_list(newVal);
-        }
-    }
-);
-onMounted(async () => {
-    await get_question_list(page.value);
+watch([page, getKeyword], ([newPage, oldPage], [newKeyword, oldKeyword]) => {
+    get_question_list();
+});
+onMounted(() => {
+    get_question_list();
 });
 </script>
 
 <template>
     <div class="container my-3">
+        <div class="row my-3">
+            <div class="col-6">
+                <router-link
+                    to="/question-create"
+                    class="btn btn-primary"
+                    :class="{ disabled: !is_login }"
+                    >질문 등록하기</router-link
+                >
+            </div>
+            <div class="col-6">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control"
+                        :value="getKeyword"
+                        @input="kw = $event.target.value"
+                    />
+                    <button
+                        class="btn btn-outline-secondary"
+                        @click.prevent="
+                            () => {
+                                setKeyword(kw);
+                                setPage(0);
+                            }
+                        "
+                    >
+                        찾기
+                    </button>
+                </div>
+            </div>
+        </div>
         <table class="table">
             <thead>
                 <tr class="text-center table-dark">
@@ -90,11 +117,7 @@ onMounted(async () => {
             <li class="page-item" :class="{ disabled: page <= 0 }">
                 <button
                     class="page-link"
-                    @click="
-                        () => {
-                            setPage(page - 1);
-                        }
-                    "
+                    @click.prevent="() => setPage(page - 1)"
                 >
                     이전
                 </button>
@@ -105,30 +128,20 @@ onMounted(async () => {
                     :class="{ active: index === page }"
                     v-if="index >= page - 5 && index <= page + 5"
                 >
-                    <button @click="() => setPage(index)" class="page-link">
+                    <button
+                        @click.prevent="() => setPage(index)"
+                        class="page-link"
+                    >
                         {{ index + 1 }}
                     </button>
                 </li>
             </template>
             <li class="page-item" :class="{ disabled: page >= totalPage - 1 }">
-                <button
-                    class="page-link"
-                    @click="
-                        () => {
-                            setPage(page + 1);
-                        }
-                    "
-                >
+                <button class="page-link" @click="() => setPage(page + 1)">
                     다음
                 </button>
             </li>
         </ul>
-        <router-link
-            to="/question-create"
-            class="btn btn-primary"
-            :class="{ disabled: !is_login }"
-            >질문 등록하기</router-link
-        >
     </div>
 </template>
 

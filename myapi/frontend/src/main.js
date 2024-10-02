@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import App from './App.vue';
 import router from './router';
-import { usePageStore } from './store/page';
+import { useSearchStore } from './store/search';
 import { useUserStore } from './store/user';
 
 const app = createApp(App);
@@ -16,8 +16,8 @@ const pinia = createPinia();
 app.use(pinia);
 app.use(router);
 
-const pageStore = usePageStore();
-pageStore.loadState();
+const searchStore = useSearchStore();
+searchStore.loadState();
 const userStore = useUserStore();
 userStore.loadState();
 

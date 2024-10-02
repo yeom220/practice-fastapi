@@ -6,12 +6,13 @@ import Error from '../components/Error.vue';
 import moment from 'moment/min/moment-with-locales';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '../store/user';
+import { marked } from 'marked';
 moment.locale('ko');
 
 const route = useRoute();
 const router = useRouter();
 const question_id = route.params.question_id;
-const question = ref({});
+const question = ref({ answers: [], voter: [], content: '' });
 const get_question = async () => {
     await fastapi('get', '/api/question/detail/' + question_id, {}, (json) => {
         question.value = json;
@@ -58,7 +59,7 @@ const delete_question = (_question_id) => {
                 router.push('/');
             },
             (err_json) => {
-                error = err_json;
+                error.value = err_json;
             }
         );
     }
@@ -78,7 +79,47 @@ const delete_answer = (answer_id) => {
                 get_question();
             },
             (err_json) => {
-                error = err_json;
+                error.value = err_json;
+            }
+        );
+    }
+};
+
+const vote_question = (_question_id) => {
+    if (window.confirm('정말로 추천하시겠습니까?')) {
+        const url = '/api/question/vote';
+        const params = {
+            question_id: _question_id
+        };
+        fastapi(
+            'post',
+            url,
+            params,
+            (json) => {
+                get_question();
+            },
+            (err_json) => {
+                error.value = err_json;
+            }
+        );
+    }
+};
+
+const vote_answer = (answer_id) => {
+    if (window.confirm('정말로 추천하시겠습니까?')) {
+        const url = '/api/answer/vote';
+        const params = {
+            answer_id: answer_id
+        };
+        fastapi(
+            'post',
+            url,
+            params,
+            (json) => {
+                get_question();
+            },
+            (err_json) => {
+                error.value = err_json;
             }
         );
     }
@@ -95,9 +136,10 @@ onMounted(async () => {
         <h2 class="border-bottom py-2">{{ question.subject }}</h2>
         <div class="card my-3">
             <div class="card-body">
-                <div class="card-text" style="white-space: pre-line">
-                    {{ question.content }}
-                </div>
+                <div
+                    class="card-text"
+                    v-html="marked.parse(question.content)"
+                ></div>
                 <div class="d-flex justify-content-end">
                     <div
                         class="badge bg-light text-dark p-2 text-start mx-3"
@@ -125,28 +167,42 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div
-                    class="my-3"
-                    v-if="question.user && question.user.username === username"
-                >
-                    <router-link
-                        :to="{
-                            name: 'question-modify',
-                            params: { question_id: question.id }
-                        }"
-                        class="btn btn-sm btn-outline-secondary"
-                        >수정</router-link
-                    >
+                <div class="my-3">
                     <button
                         class="btn btn-sm btn-outline-secondary"
-                        @click.prevent="
-                            () => {
-                                delete_question(question.id);
-                            }
+                        @click.prevent="vote_question(question.id)"
+                    >
+                        추천
+                        <span
+                            class="badge rounded-pill bg-success"
+                            v-if="!!question.voter"
+                            >{{ question.voter.length }}</span
+                        >
+                    </button>
+                    <template
+                        v-if="
+                            question.user && question.user.username === username
                         "
                     >
-                        삭제
-                    </button>
+                        <router-link
+                            :to="{
+                                name: 'question-modify',
+                                params: { question_id: question.id }
+                            }"
+                            class="btn btn-sm btn-outline-secondary"
+                            >수정</router-link
+                        >
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            @click.prevent="
+                                () => {
+                                    delete_question(question.id);
+                                }
+                            "
+                        >
+                            삭제
+                        </button>
+                    </template>
                 </div>
             </div>
         </div>
@@ -168,9 +224,7 @@ onMounted(async () => {
         </h5>
         <div class="card my-3" v-for="a in question.answers" :key="a.id">
             <div class="card-body">
-                <div class="card-text" style="white-space: pre-line">
-                    {{ a.content }}
-                </div>
+                <div class="card-text" v-html="marked.parse(a.content)"></div>
                 <div class="d-flex justify-content-end">
                     <div
                         class="badge bg-light text-dark p-2 text-start mx-3"
@@ -198,25 +252,36 @@ onMounted(async () => {
                         </div>
                     </div>
                 </div>
-                <div class="my-3" v-if="a.user && username === a.user.username">
-                    <RouterLink
-                        class="btn btn-sm btn-outline-secondary"
-                        :to="{
-                            name: 'answer-modify',
-                            params: { answer_id: a.id }
-                        }"
-                        >수정</RouterLink
-                    >
+                <div class="my-3">
                     <button
                         class="btn btn-sm btn-outline-secondary"
-                        @click.prevent="
-                            () => {
-                                delete_answer(a.id);
-                            }
-                        "
+                        @click.prevent="vote_answer(a.id)"
                     >
-                        삭제
+                        추천
+                        <span class="badge rounded-pill bg-success">{{
+                            a.voter.length
+                        }}</span>
                     </button>
+                    <template v-if="a.user && username === a.user.username">
+                        <RouterLink
+                            class="btn btn-sm btn-outline-secondary"
+                            :to="{
+                                name: 'answer-modify',
+                                params: { answer_id: a.id }
+                            }"
+                            >수정</RouterLink
+                        >
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            @click.prevent="
+                                () => {
+                                    delete_answer(a.id);
+                                }
+                            "
+                        >
+                            삭제
+                        </button>
+                    </template>
                 </div>
             </div>
         </div>

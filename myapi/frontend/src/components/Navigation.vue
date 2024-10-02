@@ -1,9 +1,9 @@
 <script setup>
 import { storeToRefs } from 'pinia';
-import { usePageStore } from '../store/page';
+import { useSearchStore } from '../store/search';
 import { useUserStore } from '../store/user';
 
-const pageStore = usePageStore();
+const searchStore = useSearchStore();
 const userStore = useUserStore();
 const {
     get_access_token: access_token,
@@ -23,7 +23,12 @@ const logout = () => {
             <router-link
                 class="navbar-brand"
                 to="/"
-                @click="pageStore.setPage(0)"
+                @click="
+                    () => {
+                        searchStore.setPage(0);
+                        searchStore.setKeyword('');
+                    }
+                "
                 >Pybo</router-link
             >
             <button
